@@ -233,33 +233,42 @@ def chart_cumulative_pnl(daily_df: pd.DataFrame) -> plt.Figure:
 
 def chart_cluster_profiles(trader_df: pd.DataFrame) -> plt.Figure:
     """Radar / bar chart of cluster characteristics."""
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 6))
     fig.suptitle("Trader Segment Profiles", fontsize=14, fontweight="bold")
 
     seg_summary = trader_df.groupby("segment")[
         ["win_rate", "trades_per_day", "avg_size_usd", "net_pnl"]
     ].mean().reset_index()
 
+    # Shorten labels so they fit
+    label_map = {
+        "Aggressive Momentum":      "Aggressive\nMomentum",
+        "Cautious Scalpers":        "Cautious\nScalpers",
+        "High-Volume Traders":      "High-Volume\nTraders",
+        "Swing / Position Traders": "Swing /\nPosition Traders",
+    }
+    short_labels = seg_summary["segment"].map(label_map).fillna(seg_summary["segment"])
+
     metrics = ["win_rate", "trades_per_day", "avg_size_usd", "net_pnl"]
     titles  = ["Win Rate", "Trades / Day", "Avg Trade Size (USD)", "Net PnL (USD)"]
     colors  = ["#E63946", "#F4A261", "#2A9D8F", "#264653"]
 
     for ax, metric, title, color in zip(axes[:3], metrics[:3], titles[:3], colors[:3]):
-        bars = ax.bar(seg_summary["segment"].astype(str), seg_summary[metric],
+        bars = ax.bar(short_labels, seg_summary[metric],
                       color=color, alpha=0.8, edgecolor="black", linewidth=0.5)
         ax.set_title(title, fontsize=11)
-        ax.set_xlabel("Segment")
+        ax.tick_params(axis="x", labelsize=9)
         for bar in bars:
             ax.text(bar.get_x() + bar.get_width()/2, bar.get_height(),
                     f"{bar.get_height():.2f}", ha="center", va="bottom", fontsize=8)
 
-    # Net PnL scatter
-    axes[2].bar(seg_summary["segment"].astype(str), seg_summary["net_pnl"],
+    # Net PnL
+    axes[2].bar(short_labels, seg_summary["net_pnl"],
                 color=["#E63946" if v < 0 else "#2A9D8F" for v in seg_summary["net_pnl"]],
                 alpha=0.8, edgecolor="black", linewidth=0.5)
     axes[2].axhline(0, color="black", linewidth=0.8, linestyle="--")
     axes[2].set_title("Net PnL by Segment (USD)", fontsize=11)
-    axes[2].set_xlabel("Segment")
+    axes[2].tick_params(axis="x", labelsize=9)
 
     plt.tight_layout()
     fig.savefig(CHARTS / "06_cluster_profiles.png", dpi=150, bbox_inches="tight")
