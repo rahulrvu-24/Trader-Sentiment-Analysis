@@ -1,5 +1,5 @@
 # Assignment Write-Up
-## Trader Performance vs Market Sentiment — Primetrade.ai
+## Trader Performance vs Market Sentiment
 
 ---
 
