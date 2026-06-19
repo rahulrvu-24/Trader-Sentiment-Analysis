@@ -1,4 +1,4 @@
-# Primetrade.ai — Data Science Intern Assignment
+# Data Science Intern Assignment
 ## Trader Performance vs Market Sentiment (Fear/Greed Index)
 
 ---
